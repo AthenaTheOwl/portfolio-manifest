@@ -39,48 +39,61 @@ repo extracts it as a primitive.
 
 ## Status
 
-v0 scaffold; no implementation yet. The specs ledger names the first
-set of requirements (R-PM-001 through R-PM-010). The first PR after
-this scaffold lands the manifest schema and the audit-runner skeleton.
+v0.1 ships. The Python CLI runs end-to-end against the example
+manifest, emits the Markdown snapshot under `reports/<iso-week>.md`,
+and appends one JSONL row per repo to `data/ledger/<run-id>.jsonl`.
+Two of six contracts do real work (`decision-freshness`,
+`voice-lint-banlist`); the other four are explicit skeletons that
+emit `warn` until spec 0002 fills them in. The full live state —
+what works, what does not, and what is next — is in
+[STATUS.md](STATUS.md).
 
 ## How to run
 
-Placeholder; will land in spec 0002. v0 ships the manifest schema,
-an example manifest covering three repos as a fixture, and the audit
-runner skeleton. No live audit yet.
-
-The eventual CLI shape (target for spec 0003):
-
 ```
-python -m portfolio_manifest audit --manifest manifests/example.yaml --out reports/2026-W34.md
 python -m portfolio_manifest validate --manifest manifests/example.yaml
+python -m portfolio_manifest audit --manifest manifests/example.yaml --out reports/2026-W34.md
 ```
+
+`validate` checks the manifest against the schema and confirms each
+declared contract has a check module on disk. `audit` runs every
+check, writes the Markdown snapshot, and prints the per-repo drift
+score. Spec 0002 lands the real `git clone` walker; v0.1 reads from
+per-repo fixtures under `tests/fixtures/repos/`.
 
 ## Layout
 
 ```
 portfolio-manifest/
   README.md
+  PRODUCT_BRIEF.md          # operator-facing brief
+  SYSTEM_MAP.md             # canonical wiring diagram
+  STATUS.md                 # live state, known limits, next queue
   LICENSE
   AGENTS.md
-  .gitignore
-  specs/
-    0001-foundation/
-      requirements.md
-      design.md
-      tasks.md
-      acceptance.md
+  pyproject.toml
   docs/
+    METHODOLOGY.md          # the "why" behind drift scoring
+    system-map.md           # longer narrative version of SYSTEM_MAP
     first-pr.md
+  decisions/
+    DEC-PM-001-contracts-closure.md
+  specs/
+    0001-foundation/{requirements,design,tasks,acceptance}.md
+    0002-design/{requirements,design,tasks,acceptance}.md
+  portfolio_manifest/
+    manifest.py walker.py snapshot.py drift.py
+    score.py ledger.py report.py
+    cli.py __main__.py
+    checks/<contract>.py
+  manifests/example.yaml
+  schemas/{manifest,snapshot,check-result}.schema.json
+  templates/snapshot.md.j2
+  scripts/{validate_*,voice_lint}.py
+  reports/2026-W34.md       # first weekly snapshot (human-readable)
+  data/ledger/2026-W25.jsonl  # first audit run (machine-readable)
+  tests/
 ```
-
-Future directories (named in specs, not created yet):
-
-- `src/portfolio_manifest/` — runtime
-- `src/portfolio_manifest/checks/` — one module per contract check
-- `manifests/` — example manifests
-- `schemas/` — manifest, snapshot, check-result schemas
-- `reports/` — weekly health snapshots
 
 ## License
 

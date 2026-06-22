@@ -1,0 +1,84 @@
+id: example-portfolio
+owner: vignesh
+schedule: weekly
+
+contracts:
+  decision_schema:
+    latest: "v3"
+  spec_schema:
+    latest: "v2"
+  dream_schema:
+    latest: "v1"
+  voice_lint_banlist:
+    sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  eval_coverage:
+    min_ratio: 0.70
+  decision_freshness:
+    max_age_days: 90
+
+repos:
+  - name: athena-site
+    clone_url: https://github.com/vignesh/athena-site.git
+    branch: main
+    fixture_path: tests/fixtures/repos/athena-site
+    last_audited_at: "2026-06-15"
+    declared_contracts:
+      decision-schema:
+        version: "v3"
+        released_at: "2026-03-01"
+      spec-schema:
+        version: "v2"
+        released_at: "2026-02-10"
+      dream-schema:
+        version: "v1"
+        released_at: "2025-11-04"
+      voice-lint-banlist:
+        version: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      eval-coverage:
+        version: "0.82"
+      decision-freshness:
+        version: "2026-06-10"
+
+  - name: dream-ledger
+    clone_url: https://github.com/vignesh/dream-ledger.git
+    branch: main
+    fixture_path: tests/fixtures/repos/dream-ledger
+    last_audited_at: "2026-06-15"
+    declared_contracts:
+      decision-schema:
+        version: "v2"
+        released_at: "2025-09-01"
+      spec-schema:
+        version: "v2"
+        released_at: "2026-02-10"
+      dream-schema:
+        version: "v1"
+        released_at: "2025-11-04"
+      voice-lint-banlist:
+        version: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      eval-coverage:
+        version: "0.61"
+      decision-freshness:
+        version: "2025-12-01"
+
+  - name: decision-store
+    clone_url: https://github.com/vignesh/decision-store.git
+    branch: main
+    fixture_path: tests/fixtures/repos/decision-store
+    last_audited_at: "2026-06-15"
+    declared_contracts:
+      decision-schema:
+        version: "v3"
+        released_at: "2026-03-01"
+      spec-schema:
+        version: "v1"
+        released_at: "2025-08-12"
+      dream-schema:
+        version: "v1"
+        released_at: "2025-11-04"
+      voice-lint-banlist:
+        version: "0000000000000000000000000000000000000000000000000000000000000000"
+      eval-coverage:
+        version: "0.74"
+      decision-freshness:
+        version: "2026-05-20"
