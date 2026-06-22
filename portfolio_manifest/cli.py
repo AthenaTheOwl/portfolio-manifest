@@ -9,6 +9,10 @@ from portfolio_manifest.report import render_markdown
 from portfolio_manifest.snapshot import build_snapshot
 
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_MANIFEST = REPO_ROOT / "manifests" / "example.yaml"
+
+
 @click.group()
 def main() -> None:
     """Portfolio Manifest CLI."""
@@ -18,12 +22,14 @@ def main() -> None:
 @click.option(
     "--manifest",
     "manifest_path",
-    required=True,
+    default=None,
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="defaults to the bundled manifests/example.yaml",
 )
-def validate_cmd(manifest_path: Path) -> None:
-    load_manifest(manifest_path)
-    click.echo("validate: ok")
+def validate_cmd(manifest_path: Path | None) -> None:
+    path = manifest_path or DEFAULT_MANIFEST
+    load_manifest(path)
+    click.echo(f"validate: ok ({path.name})")
 
 
 @main.command("audit")
