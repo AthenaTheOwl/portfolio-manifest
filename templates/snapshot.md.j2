@@ -1,0 +1,31 @@
+---
+manifest_id: {{ snapshot.manifest_id }}
+iso_week: {{ snapshot.iso_week }}
+generated_at: {{ snapshot.generated_at }}
+drift_total: {{ snapshot.repos | sum(attribute='drift_score') }}
+---
+
+# Portfolio health — {{ snapshot.iso_week }}
+
+Manifest: **{{ snapshot.manifest_id }}**. Generated {{ snapshot.generated_at }}.
+
+{% for repo in snapshot.repos %}
+## {{ repo.name }}
+
+Drift score: **{{ repo.drift_score }}**
+
+| Contract | Status | Current | Expected | Days behind | Notes |
+|---|---|---|---|---|---|
+{% for r in repo.check_results %}
+| {{ r.contract }} | {{ r.status }} | {{ r.current_version }} | {{ r.expected_version }} | {{ r.days_behind | default('-') }} | {{ r.notes | default('') }} |
+{% endfor %}
+
+{% if repo.drift_events %}
+**Drift events this week:**
+
+{% for e in repo.drift_events %}
+- `{{ e.contract }}`: {{ e.from }} → {{ e.to }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}

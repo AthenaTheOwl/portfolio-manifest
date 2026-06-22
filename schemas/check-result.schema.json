@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://portfolio-manifest.dev/schemas/check-result.schema.json",
+  "title": "CheckResult",
+  "type": "object",
+  "required": ["contract", "status", "current_version", "expected_version"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "type": "string",
+      "enum": [
+        "decision-schema",
+        "spec-schema",
+        "dream-schema",
+        "voice-lint-banlist",
+        "eval-coverage",
+        "decision-freshness"
+      ]
+    },
+    "status": { "type": "string", "enum": ["pass", "warn", "fail"] },
+    "current_version": { "type": "string" },
+    "expected_version": { "type": "string" },
+    "days_behind": { "type": "integer", "minimum": 0 },
+    "notes": { "type": "string" }
+  }
+}
