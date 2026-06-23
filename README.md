@@ -51,15 +51,40 @@ what works, what does not, and what is next — is in
 ## How to run
 
 ```
+python -m portfolio_manifest show
 python -m portfolio_manifest validate --manifest manifests/example.yaml
 python -m portfolio_manifest audit --manifest manifests/example.yaml --out reports/2026-W34.md
 ```
 
-`validate` checks the manifest against the schema and confirms each
-declared contract has a check module on disk. `audit` runs every
-check, writes the Markdown snapshot, and prints the per-repo drift
-score. Spec 0002 lands the real `git clone` walker; v0.1 reads from
-per-repo fixtures under `tests/fixtures/repos/`.
+`show` reads the latest committed snapshot under `reports/` and prints
+a ranked, readable view: repos ordered by drift score, the real
+findings (skeleton placeholders excluded), and a one-line headline. It
+is read-only and offline. `validate` checks the manifest against the
+schema and confirms each declared contract has a check module on disk.
+`audit` runs every check, writes the Markdown snapshot, and prints the
+per-repo drift score. Spec 0002 lands the real `git clone` walker;
+v0.1 reads from per-repo fixtures under `tests/fixtures/repos/`.
+
+## live demo
+
+A Streamlit page renders the same committed snapshot as an interactive
+cross-repo health view: repos ranked by drift, a toggle to hide
+skeleton-only repos, and a headline finding. It reads
+`reports/*.md` directly — no network, no secrets.
+
+Run locally:
+
+```
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+Deploy on Streamlit Community Cloud: New app -> repo
+`AthenaTheOwl/portfolio-manifest`, branch `main`, main file
+`streamlit_app.py`.
+
+<!-- live-url: -->
+
 
 ## Layout
 

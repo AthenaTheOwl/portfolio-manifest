@@ -4,6 +4,7 @@ from pathlib import Path
 
 import click
 
+from portfolio_manifest.digest import build_show_text
 from portfolio_manifest.manifest import load_manifest
 from portfolio_manifest.report import render_markdown
 from portfolio_manifest.snapshot import build_snapshot
@@ -30,6 +31,16 @@ def validate_cmd(manifest_path: Path | None) -> None:
     path = manifest_path or DEFAULT_MANIFEST
     load_manifest(path)
     click.echo(f"validate: ok ({path.name})")
+
+
+@main.command("show")
+def show_cmd() -> None:
+    """print a ranked, readable view of the latest committed weekly snapshot."""
+    text, path = build_show_text()
+    if path is None:
+        click.echo("show: no report found under reports/ — run `audit` first.", err=True)
+        raise SystemExit(1)
+    click.echo(text)
 
 
 @main.command("audit")
