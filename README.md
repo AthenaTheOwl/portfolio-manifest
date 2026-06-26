@@ -1,78 +1,61 @@
-# PortfolioManifest
+# portfolio-manifest
 
-Cross-repo health dashboard as a service. The hosted shape of athena-site's `ops/portfolio-manifest.yml` plus the weekly `scripts/portfolio_audit.py` cron, productized for any developer or organization maintaining ten or more repos that need cross-repo consistency on schemas, voice, decisions, and evals.
+A repo declares its decision schema is current. The auditor walks it and finds the
+last decision was filed 113 days ago, against a 90-day rule. The repo was telling
+the truth about the form and lying about the work. portfolio-manifest scores that
+gap across a whole portfolio.
 
-## What this is
+## What it does
 
-A manifest format plus an audit runner plus a published weekly health
-snapshot. Each tracked repo declares its artifact contracts (decision
-schema version, spec schema version, dream schema version, voice-lint
-banlist version). The runner walks the manifest weekly, checks each
-repo against the declared contracts, and emits a single health snapshot.
+Once you maintain more than a handful of repos, they drift apart quietly. One falls
+behind the current decision schema. Another runs a voice-lint banlist six weeks
+stale. A third hasn't produced a decision in three months but still passes every
+green checkmark, because no checkmark was ever pointed at decisions. Nobody added it
+up, so nobody saw it.
 
-The audit answers questions a multi-repo maintainer otherwise has to
-answer by hand:
+portfolio-manifest adds it up. Each tracked repo declares its artifact contracts in
+a manifest — decision schema version, spec schema version, dream schema version,
+voice-lint banlist version. The runner walks the manifest, checks every repo against
+what it claimed, scores the drift, and writes one health snapshot. The manifest is
+the contract, the runner is the script, the snapshot is the receipt.
 
-- Which repos drifted off the current decision schema?
-- Which repos are using a voice-lint banlist that is six weeks behind?
-- Which repos have stale eval coverage?
-- Which repos have not produced a decision in ninety days?
+v0.1 ships two contracts that do real work — `decision-freshness` and
+`voice-lint-banlist`. The other four are honest skeletons that emit `warn` until
+spec 0002 fills them in. The full live state is in [STATUS.md](STATUS.md).
 
-The manifest is the contract. The runner is the script. The snapshot is
-the artifact.
-
-## Who uses it
-
-Multi-repo open-source maintainers (cloud-native foundations,
-scientific-computing orgs). Platform teams at firms with one hundred or
-more internal services. VPEs who treat cross-repo drift as a real cost
-and have no GitHub-native answer.
-
-## Why now
-
-Multi-repo orgs have rediscovered that monorepo-or-bust is wrong.
-Cross-repo schema drift and voice drift are real costs. Existing
-dependency-graph tools (Backstage, OpenSSF Scorecard) cover security
-and ownership; they do not cover artifact-contract consistency.
-athena-site already runs the pattern for the user's portfolio; this
-repo extracts it as a primitive.
-
-## Status
-
-v0.1 ships. The Python CLI runs end-to-end against the example
-manifest, emits the Markdown snapshot under `reports/<iso-week>.md`,
-and appends one JSONL row per repo to `data/ledger/<run-id>.jsonl`.
-Two of six contracts do real work (`decision-freshness`,
-`voice-lint-banlist`); the other four are explicit skeletons that
-emit `warn` until spec 0002 fills them in. The full live state —
-what works, what does not, and what is next — is in
-[STATUS.md](STATUS.md).
-
-## How to run
+## Try it
 
 ```
 python -m portfolio_manifest show
-python -m portfolio_manifest validate --manifest manifests/example.yaml
-python -m portfolio_manifest audit --manifest manifests/example.yaml --out reports/2026-W34.md
 ```
 
-`show` reads the latest committed snapshot under `reports/` and prints
-a ranked, readable view: repos ordered by drift score, the real
-findings (skeleton placeholders excluded), and a one-line headline. It
-is read-only and offline. `validate` checks the manifest against the
-schema and confirms each declared contract has a check module on disk.
-`audit` runs every check, writes the Markdown snapshot, and prints the
-per-repo drift score. Spec 0002 lands the real `git clone` walker;
-v0.1 reads from per-repo fixtures under `tests/fixtures/repos/`.
+```
+portfolio health -- 2026-W34  (manifest: example-portfolio)
+generated 2026-06-22T00:00:00+00:00  |  3 repos  |  total drift 19
 
-## live demo
+   #  repo            drift  signal  bar
+  --  --------------  -----  ------  ------------
+   1  dream-ledger        7       1  ############
+   2  decision-store      7       1  ############
+   3  athena-site         5       0  #########...
 
-A Streamlit page renders the same committed snapshot as an interactive
-cross-repo health view: repos ranked by drift, a toggle to hide
-skeleton-only repos, and a headline finding. It reads
-`reports/*.md` directly — no network, no secrets.
+real findings (2):
+  - dream-ledger | decision-freshness | fail: 2025-12-01 (expected <= 90 days)  [113 days behind]
+  - decision-store | voice-lint-banlist | fail: banlist hash drift: repo is using a banlist that does not match the manifest
 
-Run locally:
+headline: dream-ledger carries the most drift (7); its sharpest signal is decision-freshness (fail).
+note: 12 of the warnings are skeleton placeholders (not signal).
+```
+
+`show` reads the latest committed snapshot under `reports/`, ranks repos by drift,
+strips the skeleton placeholders out of the signal, and stamps a one-line headline.
+Read-only and offline.
+
+## Live demo
+
+A Streamlit page renders the same committed snapshot as an interactive cross-repo
+health view: repos ranked by drift, a toggle to hide the skeleton-only repos, and the
+headline finding. It reads `reports/*.md` directly — no network, no secrets.
 
 ```
 pip install -r requirements.txt
@@ -85,6 +68,27 @@ Deploy on Streamlit Community Cloud: New app -> repo
 
 <!-- live-url: -->
 
+## How it connects
+
+This repo is the extraction of a pattern that already runs in production. The weekly
+audit, the manifest format, and the portfolio cron originated in
+[athena-site](https://github.com/AthenaTheOwl/athena-site) as
+`ops/portfolio-manifest.yml` plus `scripts/portfolio_audit.py`. portfolio-manifest
+pulls that out as a standalone primitive any multi-repo maintainer can point at their
+own tree.
+
+## How to run
+
+```
+python -m portfolio_manifest show
+python -m portfolio_manifest validate --manifest manifests/example.yaml
+python -m portfolio_manifest audit --manifest manifests/example.yaml --out reports/2026-W34.md
+```
+
+`validate` checks the manifest against the schema and confirms each declared contract
+has a check module on disk. `audit` runs every check, writes the Markdown snapshot,
+and prints the per-repo drift score. Spec 0002 lands the real `git clone` walker; for
+now v0.1 reads from per-repo fixtures under `tests/fixtures/repos/`.
 
 ## Layout
 
