@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from jsonschema import validate
+from jsonschema import ValidationError, validate
 
 SUPPORTED_CONTRACTS = (
     "decision-schema",
@@ -44,10 +44,37 @@ class Manifest:
 _SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas" / "manifest.schema.json"
 
 
+class ManifestError(Exception):
+    """A manifest could not be read, parsed, or validated.
+
+    Carries a one-line, actionable message so callers can report the bad
+    input without exposing a parser/validator traceback to the user.
+    """
+
+
 def load_manifest(path: str | Path) -> Manifest:
-    data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    path = Path(path)
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as err:
+        raise ManifestError(f"{path}: cannot read manifest: {err.strerror or err}") from err
+
+    try:
+        data = yaml.safe_load(text)
+    except yaml.YAMLError as err:
+        # yaml attaches the offending line/column on problem_mark for mapping errors.
+        mark = getattr(err, "problem_mark", None)
+        where = f" at line {mark.line + 1}, column {mark.column + 1}" if mark else ""
+        raise ManifestError(f"{path}: not valid YAML{where}") from err
+
     schema = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
-    validate(instance=data, schema=schema)
+    try:
+        validate(instance=data, schema=schema)
+    except ValidationError as err:
+        # err.message is the single failing rule; err.json_path locates it in the doc.
+        raise ManifestError(
+            f"{path}: does not match manifest schema at {err.json_path}: {err.message}"
+        ) from err
     repos = [
         RepoEntry(
             name=r["name"],

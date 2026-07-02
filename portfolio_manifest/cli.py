@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 
 from portfolio_manifest.digest import build_show_text
-from portfolio_manifest.manifest import load_manifest
+from portfolio_manifest.manifest import ManifestError, load_manifest
 from portfolio_manifest.report import render_markdown
 from portfolio_manifest.snapshot import build_snapshot
 
@@ -29,7 +29,11 @@ def main() -> None:
 )
 def validate_cmd(manifest_path: Path | None) -> None:
     path = manifest_path or DEFAULT_MANIFEST
-    load_manifest(path)
+    try:
+        load_manifest(path)
+    except ManifestError as err:
+        click.echo(f"validate: {err}", err=True)
+        raise SystemExit(1)
     click.echo(f"validate: ok ({path.name})")
 
 
@@ -58,7 +62,11 @@ def show_cmd() -> None:
 )
 @click.option("--iso-week", "iso_week", required=True)
 def audit_cmd(manifest_path: Path, out_path: Path, iso_week: str) -> None:
-    manifest = load_manifest(manifest_path)
+    try:
+        manifest = load_manifest(manifest_path)
+    except ManifestError as err:
+        click.echo(f"audit: {err}", err=True)
+        raise SystemExit(1)
     snapshot = build_snapshot(manifest, iso_week)
     body = render_markdown(snapshot)
     out_path.parent.mkdir(parents=True, exist_ok=True)
