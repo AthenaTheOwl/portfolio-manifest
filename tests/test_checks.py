@@ -86,7 +86,8 @@ def test_decision_freshness_one_day_over_max_age_fails(tmp_path):
 
 
 def test_future_decision_date_is_not_fresh_evidence(tmp_path):
-    result = _freshness_status_at_age(-1, tmp_path)
+    # two days ahead is past the one-day timezone grace.
+    result = _freshness_status_at_age(-2, tmp_path)
     assert result["status"] == "fail"
     assert result["notes"] == "decision-freshness date is in the future"
     assert "days_behind" not in result
@@ -94,3 +95,11 @@ def test_future_decision_date_is_not_fresh_evidence(tmp_path):
 
 def test_decision_dated_today_is_current(tmp_path):
     assert _freshness_status_at_age(0, tmp_path)["status"] == "pass"
+
+
+def test_decision_dated_tomorrow_passes_within_timezone_grace(tmp_path):
+    # pin the grace boundary: a date one day ahead of the checker's today
+    # (stamped in a timezone ahead of it) is current, not future.
+    result = _freshness_status_at_age(-1, tmp_path)
+    assert result["status"] == "pass"
+    assert result["notes"] == ""
