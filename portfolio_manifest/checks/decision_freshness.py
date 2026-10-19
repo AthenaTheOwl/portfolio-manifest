@@ -31,6 +31,16 @@ def run(repo_path: Path, repo: Any, contracts: dict[str, Any]) -> dict[str, Any]
         }
 
     age = (_today() - as_of).days
+    if age < 0:
+        return {
+            "contract": "decision-freshness",
+            "status": "fail",
+            "current": current,
+            "expected": expected,
+            "current_version": current,
+            "expected_version": expected,
+            "notes": "decision-freshness date is in the future",
+        }
     if age <= max_age_days:
         return {
             "contract": "decision-freshness",

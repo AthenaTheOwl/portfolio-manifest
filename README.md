@@ -7,6 +7,9 @@ gap across a whole portfolio.
 
 ## What it does
 
+The freshness check rejects future-dated decision records. A date after the
+audit cutoff cannot serve as evidence that a contract is current.
+
 Once you maintain more than a handful of repos, they drift apart quietly. One falls
 behind the current decision schema. Another runs a voice-lint banlist six weeks
 stale. A third hasn't produced a decision in three months but still passes every
