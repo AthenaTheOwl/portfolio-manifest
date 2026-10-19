@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "src"))
+sys.path.insert(0, str(REPO_ROOT))
 
 from portfolio_manifest.checks import load  # noqa: E402
 from portfolio_manifest.manifest import SUPPORTED_CONTRACTS, load_manifest  # noqa: E402
