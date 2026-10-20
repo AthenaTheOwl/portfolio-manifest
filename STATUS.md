@@ -14,10 +14,12 @@ not, what is next." Updated each cut.
 - `manifests/example.yaml` declares three fixture repos and validates
   against the manifest schema. All six declared contracts resolve to
   Python modules under `portfolio_manifest/checks/`.
-- Two of six checks have real behaviour: `decision-freshness` (reads
-  the most recent decision-file mtime and compares to the declared
-  max age) and `voice-lint-banlist` (compares declared banlist hash
-  to the manifest's pinned hash). The other four return `warn` with
+- Two of six checks have real behaviour: `decision-freshness`
+  (compares the manifest-declared decision-freshness date with
+  today's date; older than the max age fails, and a date more than
+  one day in the future fails as future-dated) and
+  `voice-lint-banlist` (compares declared banlist hash to the
+  manifest's pinned hash). The other four return `warn` with
   a "skeleton, not yet implemented" note — explicit by R-PM-007.
 - The first weekly snapshot is checked in at `reports/2026-W34.md`.
   It is the first row of the cross-repo ledger and the artifact a
