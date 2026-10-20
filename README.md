@@ -1,17 +1,10 @@
 # portfolio-manifest
 
-A repo declares its decision schema is current. The auditor walks it and finds the
-last decision was filed 113 days ago, against a 90-day rule. The repo was telling
-the truth about the form and lying about the work. portfolio-manifest scores that
-gap across a whole portfolio.
+A repo declares its decision schema is current. Its manifest entry dates the last
+decision 113 days past a 90-day rule. The repo was telling the truth about the form
+and lying about the work. portfolio-manifest scores that gap across a whole portfolio.
 
 ## What it does
-
-The freshness check compares the `decision-freshness` date each repo declares in
-the manifest against the checking machine's current date; it does not read decision
-records. A declared date more than one day ahead of that date fails as future-dated.
-The one day of grace covers a date stamped in a timezone ahead of the checker. A
-date that hasn't happened yet cannot serve as evidence that a contract is current.
 
 Once you maintain more than a handful of repos, they drift apart quietly. One falls
 behind the current decision schema. Another runs a voice-lint banlist six weeks
@@ -28,6 +21,13 @@ the contract, the runner is the script, the snapshot is the receipt.
 v0.1 ships two contracts that do real work — `decision-freshness` and
 `voice-lint-banlist`. The other four are honest skeletons that emit `warn` until
 spec 0002 fills them in. The full live state is in [STATUS.md](STATUS.md).
+
+The freshness check compares the `decision-freshness` date each repo declares in
+the manifest against the checking machine's current date; it does not read decision
+records. A declared date more than one day ahead of that date fails as future-dated.
+The one day of grace covers the usual one-day skew from a date stamped in a timezone
+ahead of the checker (always enough for a UTC checker). A date that hasn't happened
+yet cannot serve as evidence that a contract is current.
 
 ## Try it
 
