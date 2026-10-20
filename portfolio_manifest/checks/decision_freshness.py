@@ -7,8 +7,10 @@ from typing import Any
 TODAY_OVERRIDE: date | None = None
 
 # The declared date carries no timezone. A repo stamping it in a timezone ahead
-# of the checking machine can legitimately be one calendar day "ahead", so only
-# dates more than this many days past the checker's today count as future.
+# of the checking machine is usually at most one calendar day "ahead" (always so
+# for a UTC checker, since no civil offset exceeds +14h), so only dates more than
+# this many days past the checker's today count as future. Extreme pairs such as
+# UTC+14 vs UTC-12 can differ by two days and still fail; that case is out of scope.
 FUTURE_GRACE_DAYS = 1
 
 
